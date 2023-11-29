@@ -4,7 +4,13 @@ elecciones_combinadas <- bind_rows(
   mutate(elecciones_cf_2022, Año = 2022)   # Agregar columna para el año
 )
 
-# Calcular porcentajes por agrupación y año
+# Convertimos a numérico
+elecciones_combinadas$CGU <- as.numeric(elecciones_combinadas$CGU)
+elecciones_combinadas$ARENA <- as.numeric(elecciones_combinadas$ARENA)
+elecciones_combinadas$CECSO <- as.numeric(elecciones_combinadas$CECSO)
+elecciones_combinadas$BLANCOS <- as.numeric(elecciones_combinadas$BLANCOS)
+
+# Calculamos porcentajes por agrupación y año
 elecciones_porcentaje <- elecciones_combinadas %>%
   group_by(Año) %>%
   summarise(
@@ -14,10 +20,11 @@ elecciones_porcentaje <- elecciones_combinadas %>%
     porcentaje_BLANCOS = sum(BLANCOS) / sum(CGU + ARENA + CECSO + BLANCOS) * 100
   )
 
-# Reorganizar datos para el gráfico
+# Reorganizamos datos para el gráfico
 elecciones_long <- elecciones_porcentaje %>%
   pivot_longer(cols = -Año, names_to = "Agrupacion", values_to = "Porcentaje")
 
+# Graficamos
 ggplot(elecciones_long, aes(x = factor(Año), y = Porcentaje, color = Agrupacion, group = Agrupacion)) +
   geom_point(size = 2) +
   geom_line() +
